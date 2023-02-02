@@ -1,12 +1,12 @@
-from telegram.ext import CommandHandler, Updater, Filters, MessageHandler
+from telegram.ext import CommandHandler, Updater
 from telegram import ReplyKeyboardMarkup
 import requests
 import os
 
 
 auth_token = os.getenv('TOKEN')
-updater = Updater(token=auth_token)
 URL = 'https://api.thecatapi.com/v1/images/search'
+
 
 def get_new_image():
     try:
@@ -23,8 +23,6 @@ def new_cat(update, context):
     context.bot.send_photo(chat.id, get_new_image())
 
 def wake_up(update, context):
-    # В ответ на команду /start 
-    # будет отправлено сообщение 'Спасибо, что включили меня'
     chat = update.effective_chat
     name = update.message.chat.first_name
     button = ReplyKeyboardMarkup([['/newcat']], resize_keyboard=True)
@@ -35,10 +33,14 @@ def wake_up(update, context):
     )
     context.bot.send_photo(chat.id, get_new_image())
 
-updater.dispatcher.add_handler(CommandHandler('start', wake_up))
+def main():
+    updater = Updater(token=auth_token)
 
-updater.dispatcher.add_handler(CommandHandler('newcat', new_cat))
+    updater.dispatcher.add_handler(CommandHandler('start', wake_up))
+    updater.dispatcher.add_handler(CommandHandler('newcat', new_cat))
 
-updater.start_polling()
+    updater.start_polling()
+    updater.idle()
 
-updater.idle()
+if __name__ == '__main__':
+    main()
